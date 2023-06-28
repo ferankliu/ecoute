@@ -14,10 +14,26 @@ def write_in_textbox(textbox, text):
     textbox.delete("0.0", "end")
     textbox.insert("0.0", text)
 
+last_saved_line = ""
+
 def update_transcript_UI(transcriber, textbox):
+    global last_saved_line  # Declare it as global to be able to modify its value
     transcript_string = transcriber.get_transcript()
     write_in_textbox(textbox, transcript_string)
+    
+    transcript_string = transcript_string.strip();
+    # Compare the new transcript with the last saved line
+    new_lines = transcript_string.split("\n")
+    if new_lines[0] != last_saved_line:
+        print_line = new_lines[0]
+        #print_line = print_line.encode("utf-8")
+        save_transcript_to_file(print_line)
+        last_saved_line = print_line
     textbox.after(300, update_transcript_UI, transcriber, textbox)
+    
+def save_transcript_to_file(transcript):
+    with open("transcript.txt", "a", encoding="utf-8") as file:
+        file.write(transcript + "\n")
 
 def update_response_UI(responder, textbox, update_interval_slider_label, update_interval_slider, freeze_state):
     if not freeze_state[0]:
